@@ -1,0 +1,16 @@
+{
+  "notes": [
+    {
+      "title": "Title one",
+      "details": "Details one",
+      "category": "reminders",
+      "id": "1"
+    },
+    {
+      "title": "Hello world",
+      "details": "This is cs50! Harvards introduction to the interectual enterprises of computer science and the art of programming",
+      "category": "money",
+      "id": "2"
+    }
+  ]
+}
