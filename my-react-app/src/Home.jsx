@@ -40,7 +40,7 @@ function Home() {
       });
 
     // Fetch fixtures
-    fetch('http://localhost:8000/api/fixtures/')
+    fetch('http://localhost:8000/api/top-teams-fixtures/')
       .then(res => res.json())
       .then(data => {
         const filtered = data
@@ -58,7 +58,7 @@ function Home() {
       });
 
     // Fetch top scorers
-    fetch('http://localhost:8000/api/top_scorers/')
+    fetch('http://localhost:8000/api/top-scorers/')
       .then(res => res.json())
       .then(data => {
         setTopScorers(data.slice(0, 3)); // take top 3
@@ -180,91 +180,102 @@ function Home() {
           )}
         </Section>
 
-        {/* Fixtures Section */}
-        <Section title="Upcoming Fixtures for Top Teams">
-          {loadingFixtures ? (
-            <Typography>Loading fixtures...</Typography>
-          ) : fixtures.length === 0 ? (
-            <Typography>No upcoming fixtures.</Typography>
-          ) : (
-            <Grid container spacing={2}>
-              {fixtures.map((match, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card
-                    variant="outlined"
-                    sx={{
-                      borderRadius: 2,
-                      height: '100%',
-                      border: '1px solid #ddd',
-                    }}
-                  >
-                    <CardContent>
-                      <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Box display="flex" alignItems="center">
-                          <Avatar src={match.team_a?.logo} alt={match.team_a?.name} sx={{ mr: 1 }} />
-                          <Typography variant="subtitle1">{match.team_a?.name}</Typography>
-                        </Box>
-                        <Typography fontWeight="bold">VS</Typography>
-                        <Box display="flex" alignItems="center">
-                          <Typography variant="subtitle1" sx={{ mr: 1 }}>{match.team_b?.name}</Typography>
-                          <Avatar src={match.team_b?.logo} alt={match.team_b?.name} />
-                        </Box>
-                      </Box>
-                      <Divider sx={{ my: 1 }} />
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        align="center"
-                      >
-                        {new Date(match.date).toLocaleString()} | {match.venue}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </Section>
+<Section title="Upcoming Fixtures for Top Teams">
+  {loadingFixtures ? (
+    <Typography>Loading fixtures...</Typography>
+  ) : fixtures.length === 0 ? (
+    <Typography>No upcoming fixtures.</Typography>
+  ) : (
+    <Grid container spacing={2}>
+      {fixtures.map((match) => (
+        <Grid item xs={12} sm={6} md={4} key={match.id}>
+          <Card
+            variant="outlined"
+            sx={{
+              borderRadius: 2,
+              height: '100%',
+              border: '1px solid #ddd',
+              p: 2,
+              textAlign: 'center',
+              cursor: 'default',
+              '&:hover': { backgroundColor: 'action.hover' },
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              {match.team_a.name} VS {match.team_b.name}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              {new Date(match.date).toLocaleString()}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Venue: {match.venue}
+            </Typography>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
+  )}
+</Section>
+
+
 
         {/* Top Scorers Section */}
-        <Section title="Top Scorers">
-          {loadingScorers ? (
-            <Typography>Loading top scorers...</Typography>
-          ) : topScorers.length === 0 ? (
-            <Typography>No top scorers data.</Typography>
-          ) : (
-            <Paper
-              elevation={2}
-              sx={{
-                p: 2,
-                borderRadius: 3,
-                border: '1px solid',
-                borderColor: 'divider',
-              }}
-            >
-              {topScorers.map((player, idx) => (
-                <Box
-                  key={idx}
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  sx={{
-                    mb: idx < topScorers.length - 1 ? 1.5 : 0,
-                    p: 1,
-                    borderRadius: 2,
-                    '&:hover': { backgroundColor: 'action.hover' }
-                  }}
-                >
-                  <Box display="flex" alignItems="center">
-                    <Avatar src={player.photo} alt={player.name} sx={{ mr: 1 }} />
-                    <Typography>{player.name}</Typography>
-                  </Box>
-                  <Typography fontWeight="bold">{player.goals} ⚽</Typography>
-                </Box>
-              ))}
-            </Paper>
-          )}
-        </Section>
+<Section title="Top Scorers">
+  {loadingScorers ? (
+    <Typography>Loading top scorers...</Typography>
+  ) : topScorers.length === 0 ? (
+    <Typography>No top scorers data.</Typography>
+  ) : (
+    <Grid container spacing={3}>
+      {topScorers.map((player) => (
+        <Grid item xs={12} sm={6} md={4} key={player.player_id}>
+          <Card
+            elevation={1}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              p: 2,
+              borderRadius: 1,
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.01)',
+                boxShadow: 2,
+              },
+            }}
+          >
+            <Avatar
+              src={`http://localhost:8000${player.photo}`}
+              alt={player.player_name}
+              sx={{ width: 64, height: 64, mr: 2, borderRadius: 2 }}
+              variant="rounded"
+            />
+            <CardContent sx={{ flex: '1 1 auto', p: 0 }}>
+              <Typography variant="h6" fontWeight={700} noWrap>
+                {player.player_name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" noWrap>
+                {player.club_name}
+              </Typography>
+              <Box mt={1} display="flex" gap={2}>
+                <Typography variant="body2" color="text.primary">
+                  <strong>{player.goals}</strong> ⚽ Goals
+                </Typography>
+                <Typography variant="body2" color="text.primary">
+                  <strong>{player.appearances}</strong> Apps
+                </Typography>
+                <Typography variant="body2" color="text.primary">
+                  <strong>{player.assists}</strong> Assists
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
+  )}
+</Section>
+
       </Container>
     </Box>
   );

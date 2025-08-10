@@ -58,7 +58,7 @@ function App() {
 
 
   useEffect(() => {
-    fetch('http://10.66.1:8000/api/results/')
+    fetch('http://localhost:8000/api/results/')
       .then(res => res.json())
       .then(data => setMatchResults(data))
       .catch(err => console.error('Error fetching match results:', err));

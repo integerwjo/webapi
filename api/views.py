@@ -1,6 +1,6 @@
 from rest_framework import viewsets, filters
 from sports.models import Club, MatchResult, NewsArticle, ClubStats, MatchFixture, Player, PlayerStats
-from .serializers import ClubSerializer,MatchResultSerializer, NewsArticleSerializer, MatchFixtureSerializer, PlayerSerializer, LeagueStandingSerializer, ClubStatsSerializer, PlayerHighlightSerializer
+from .serializers import ClubSerializer,MatchResultSerializer, NewsArticleSerializer, MatchFixtureSerializer, PlayerSerializer, LeagueStandingSerializer, ClubStatsSerializer, PlayerHighlightSerializer, PlayerStatsSerializer, TopScorerSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import F, ExpressionWrapper, IntegerField
@@ -14,6 +14,8 @@ from .serializers import UserSerializer
 from rest_framework import generics
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import EmailTokenObtainPairSerializer
+from django.db.models import Q
+
 
 
 
@@ -86,3 +88,26 @@ class RegisterView(generics.CreateAPIView):
 
 class EmailTokenObtainPairView(TokenObtainPairView):
     serializer_class = EmailTokenObtainPairSerializer
+
+
+class TopScorersViewSet(viewsets.ViewSet):
+    def list(self, request):
+        top_scorers = PlayerStats.objects.select_related('player', 'player__club').order_by('-goals')[:3]
+        serializer = TopScorerSerializer(top_scorers, many=True)
+        return Response(serializer.data)
+
+
+
+class TopTeamsFixturesViewSet(viewsets.ViewSet):
+    def list(self, request):
+        # Get top 3 unique clubs by points
+        top_club_ids = ClubStats.objects.order_by('-points').values_list('club', flat=True).distinct()[:3]
+
+        # Get fixtures for these clubs
+        fixtures = MatchFixture.objects.filter(
+            Q(team_a__in=top_club_ids) | Q(team_b__in=top_club_ids)
+        ).order_by('date').distinct()
+
+        # Serialize fixtures (you need a serializer for MatchFixture)
+        serializer = MatchFixtureSerializer(fixtures, many=True)
+        return Response(serializer.data)

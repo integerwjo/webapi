@@ -101,6 +101,7 @@ class LeagueStandingSerializer(serializers.ModelSerializer):
 
 
 class PlayerStatsSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = PlayerStats
         fields = [
@@ -252,3 +253,11 @@ class MatchFixtureSerializer(serializers.ModelSerializer):
 
 
 
+class TopScorerSerializer(serializers.Serializer):
+    player_id = serializers.IntegerField(source='player.id')
+    player_name = serializers.CharField(source='player.name')
+    club_name = serializers.CharField(source='player.club.name')
+    goals = serializers.IntegerField()
+    appearances = serializers.IntegerField()
+    assists = serializers.IntegerField()
+    photo = serializers.ImageField(source='player.photo')
