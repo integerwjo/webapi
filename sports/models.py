@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models import F
 from django.core.exceptions import ValidationError
 
+
+
 class Club(models.Model):
     name = models.CharField(max_length=100)
     logo = models.ImageField(upload_to='team_logos/', null=True, blank=True)

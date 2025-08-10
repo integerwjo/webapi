@@ -45,7 +45,7 @@ export default function SignIn() {
     setErrors({});
 
     try {
-      const response = await fetch("http://10.66.137.15:8000/api/token/", {
+      const response = await fetch("http://localhost:8000/api/token/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -59,7 +59,7 @@ export default function SignIn() {
       if (response.ok) {
         localStorage.setItem("access", data.access);
         localStorage.setItem("refresh", data.refresh);
-
+        localStorage.setItem("username", form.username);
         // Redirect to home page on successful login
         navigate('/');
       } else {

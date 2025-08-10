@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Box,
   Container,
   Typography,
   Stack,
@@ -8,10 +7,9 @@ import {
   CardContent,
   CardMedia,
   CardActionArea,
+  Box,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
-
 
 const News = ({ articles }) => {
   const navigate = useNavigate();
@@ -22,52 +20,71 @@ const News = ({ articles }) => {
 
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
-      <Typography variant="h5" fontWeight={700} mb={4} textAlign="center">
+      <Typography
+        variant="h4"
+        fontWeight={800}
+        mb={5}
+        textAlign="center"
+        sx={{ letterSpacing: 1 }}
+      >
         Latest Sports News
       </Typography>
 
       <Stack spacing={4} alignItems="center">
         {articles.map((article) => (
-          <Box
-            Container
+          <Card
             key={article.id}
-            elevation = {3}
             onClick={() => handleCardClick(article.id)}
             sx={{
               width: '100%',
-              maxWidth: 500, // <<< Solid, visible border
+              maxWidth: 550,
               borderRadius: 1,
               overflow: 'hidden',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
               cursor: 'pointer',
-              transition: 'border-color 0.2s ease,  0.2s ease',
-              borderBox:'2px 2px 2px #ddd',
-              border:'1.5px solid purple',
-          
+              '&:hover': {
+                transform: 'translateY(-1px)',
+                boxShadow: '0 0.5px 1px rgba(0,0,0,0.7)',
+              },
             }}
           >
             <CardActionArea>
-                <Box sx={{ p: 2 }}>
-                <Typography variant="caption" color="text.secondary">
-                  {article.date}
-                </Typography>
-                <Typography variant="h6" fontWeight={600} mt={1}>
-                  {article.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" mt={1}>
-                  {article.summary}
-                </Typography>
-              </Box>
               {article.image && (
                 <CardMedia
                   component="img"
-                  minHeight={{ xs: 220, sm: 280, md: 320 }}
+                  height="260"
                   image={article.image}
                   alt={article.title}
+                  sx={{
+                    objectFit: 'cover',
+                  }}
                 />
               )}
-
+              <CardContent sx={{ p: 3 }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: 'text.secondary', fontSize: '0.8rem' }}
+                >
+                  {article.date}
+                </Typography>
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                  mt={1}
+                  sx={{ lineHeight: 1.3 }}
+                >
+                  {article.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: 'text.secondary', mt: 1 }}
+                >
+                  {article.summary}
+                </Typography>
+              </CardContent>
             </CardActionArea>
-          </Box>
+          </Card>
         ))}
       </Stack>
     </Container>

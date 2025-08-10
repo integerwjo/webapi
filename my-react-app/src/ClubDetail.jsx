@@ -22,7 +22,7 @@ const ClubDetailsCard = () => {
   const [team, setTeam] = useState(null);
 
   useEffect(() => {
-    fetch(`http://10.66.137.15:8000/api/clubs/${id}/`)
+    fetch(`http://localhost:8000/api/clubs/${id}/`)
       .then(res => res.json())
       .then(setTeam)
       .catch(console.error);
@@ -81,21 +81,17 @@ const ClubDetailsCard = () => {
             mb: 4,
             maxWidth: 400,
             borderRadius: 1,
-            boxShadow: 1.5,
             backgroundColor: '#fafafa',
             cursor: 'pointer',
             transition: 'transform 0.2s',
-            '&:hover': {
-              
-              boxShadow: 1,
-            },
+        
           }}
         >
           <Avatar
             src={
               top_scorer.photo?.startsWith('http')
                 ? top_scorer.photo
-                : `http://10.66.137.15:8000${top_scorer.photo}`
+                : `http://localhost:8000${top_scorer.photo}`
             }
             alt={top_scorer.name}
             sx={{ width: 64, height: 64, mr: 2 }}

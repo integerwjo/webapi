@@ -29,28 +29,28 @@ function App() {
   const [players, setPlayers] = useState([]);
 
   useEffect(() => {
-    fetch('http://10.66.137.15:8000/api/standings/')
+    fetch('http://localhost:8000/api/standings/')
       .then(res => res.json())
       .then(data => setClubStats(data))
       .catch(err => console.error('Error fetching club stats:', err));
   }, []);
 
   useEffect(() => {
-    fetch('http://10.66.137.15:8000/api/clubs/')
+    fetch('http://localhost:8000/api/clubs/')
       .then(res => res.json())
       .then(data => setClubs(data))
       .catch(err => console.error('Error fetching clubs:', err));
   }, []);
 
    useEffect(() => {
-    fetch('http://10.66.137.15:8000/api/news/')
+    fetch('http://localhost:8000/api/news/')
       .then(res => res.json())
       .then(data => setNewsArticles(data))
       .catch(err => console.error('Error fetching news articles:', err));
   }, []);
 
   useEffect(() => {
-    fetch('http://10.66.137.15:8000/api/fixtures/')
+    fetch('http://localhost:8000/api/fixtures/')
       .then(res => res.json())
       .then(data => setMatchFixtures(data))
       .catch(err => console.error('Error fetching match fixtures:', err));
@@ -58,7 +58,7 @@ function App() {
 
 
   useEffect(() => {
-    fetch('http://10.66.137.15:8000/api/results/')
+    fetch('http://10.66.1:8000/api/results/')
       .then(res => res.json())
       .then(data => setMatchResults(data))
       .catch(err => console.error('Error fetching match results:', err));

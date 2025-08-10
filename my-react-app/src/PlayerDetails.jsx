@@ -18,7 +18,7 @@ const PlayerDetailsCard = () => {
   const [player, setPlayer] = useState()
 
   useEffect(() => {
-    fetch(`http://10.66.137.15:8000/api/players/${id}/`)
+    fetch(`http://localhost:8000/api/players/${id}/`)
       .then(res => res.json())
       .then(data => setPlayer(data))
       .catch(err => console.error('Failed to fetch club:', err));

@@ -10,6 +10,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 import chat.routing
 from chat.token_middleware import TokenAuthMiddleware
 
+
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": TokenAuthMiddleware(

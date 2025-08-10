@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import stadiumImg from './assets/stadium.jpg';
-
 import {
   Box,
   Container,
@@ -9,28 +8,65 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Stack,
   Divider,
   Avatar,
   CardActionArea,
+  Paper
 } from '@mui/material';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import HeroTyping from './HeroTyping';
 
 function Home() {
   const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [fixtures, setFixtures] = useState([]);
+  const [topScorers, setTopScorers] = useState([]);
+  const [loadingNews, setLoadingNews] = useState(true);
+  const [loadingFixtures, setLoadingFixtures] = useState(true);
+  const [loadingScorers, setLoadingScorers] = useState(true);
+
+  const topTeams = ['Team A', 'Team B']; // ← replace with actual top two team names
 
   useEffect(() => {
-    fetch('http://10.66.137.15:8000/api/news/')
-      .then((res) => res.json())
-      .then((data) => {
+    // Fetch news
+    fetch('http://localhost:8000/api/news/')
+      .then(res => res.json())
+      .then(data => {
         setArticles(data);
-        setLoading(false);
+        setLoadingNews(false);
       })
-      .catch((err) => {
+      .catch(err => {
         console.error('Error fetching articles:', err);
-        setLoading(false);
+        setLoadingNews(false);
+      });
+
+    // Fetch fixtures
+    fetch('http://localhost:8000/api/fixtures/')
+      .then(res => res.json())
+      .then(data => {
+        const filtered = data
+          .filter(match =>
+            topTeams.includes(match.team_a?.name) ||
+            topTeams.includes(match.team_b?.name)
+          )
+          .slice(0, 3);
+        setFixtures(filtered);
+        setLoadingFixtures(false);
+      })
+      .catch(err => {
+        console.error('Error fetching fixtures:', err);
+        setLoadingFixtures(false);
+      });
+
+    // Fetch top scorers
+    fetch('http://localhost:8000/api/top_scorers/')
+      .then(res => res.json())
+      .then(data => {
+        setTopScorers(data.slice(0, 3)); // take top 3
+        setLoadingScorers(false);
+      })
+      .catch(err => {
+        console.error('Error fetching top scorers:', err);
+        setLoadingScorers(false);
       });
   }, []);
 
@@ -42,70 +78,64 @@ function Home() {
     <Box>
       {/* Hero Section */}
       <Box
-  sx={{
-    position: 'relative',
-    backgroundImage: `url(${stadiumImg})`,
+        sx={{
+          position: 'relative',
+          backgroundImage: `url(${stadiumImg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          py: { xs: 8, md: 12 },
+          color: '#fff',
+          textAlign: 'center',
+          overflow: 'hidden',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(180deg, rgba(30,60,114,0.7), rgba(42,82,152,0.85))',
+            zIndex: 1,
+          },
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: '-100%',
+            width: '200%',
+            height: '100%',
+            backgroundImage: `url('/images/smoke.png')`,
+            backgroundRepeat: 'repeat',
+            backgroundSize: 'cover',
+            opacity: 0.15,
+            animation: 'smokeMove 60s linear infinite',
+            zIndex: 2,
+          },
+          '@keyframes smokeMove': {
+            '0%': { transform: 'translateX(0)' },
+            '100%': { transform: 'translateX(50%)' },
+          },
+        }}
+      >
+        <Container sx={{ position: 'relative', zIndex: 3 }}>
+          <SportsSoccerIcon sx={{ fontSize: 50 }} />
+          <Typography variant="h3" fontWeight={700} gutterBottom>
+            Endebess Football League
+          </Typography>
+          <Typography variant="h6" color="rgba(255,255,255,0.85)">
+            <HeroTyping />
+          </Typography>
+        </Container>
+      </Box>
 
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    py: { xs: 8, md: 12 },
-    color: '#fff',
-    textAlign: 'center',
-    overflow: 'hidden',
-
-    // Gradient overlay
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      inset: 0,
-      background: 'linear-gradient(180deg, rgba(30,60,114,0.7), rgba(42,82,152,0.85))',
-      zIndex: 1,
-    },
-
-    // Smoke effect overlay
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: '-100%',
-      width: '200%',
-      height: '100%',
-      backgroundImage: `url('/images/smoke.png')`, // make sure this image exists and has transparency
-      backgroundRepeat: 'repeat',
-      backgroundSize: 'cover',
-      opacity: 0.15,
-      animation: 'smokeMove 60s linear infinite',
-      zIndex: 2,
-    },
-
-    '@keyframes smokeMove': {
-      '0%': { transform: 'translateX(0)' },
-      '100%': { transform: 'translateX(50%)' },
-    },
-  }}
->
-  <Container sx={{ position: 'relative', zIndex: 3 }}>
-    <SportsSoccerIcon sx={{ fontSize: 50 }} />
-    <Typography variant="h3" fontWeight={700} gutterBottom>
-      Endebess Football League
-    </Typography>
-    <Typography variant="h6" color="rgba(255,255,255,0.85)">
-      <HeroTyping />
-    </Typography>
-  </Container>
-</Box>
-
-
-      {/* News Section */}
+      {/* Content */}
       <Container sx={{ py: 6 }}>
+        {/* News Section */}
         <Section title="Latest News">
-          {loading ? (
+          {loadingNews ? (
             <Typography>Loading articles...</Typography>
           ) : articles.length === 0 ? (
             <Typography>No articles available.</Typography>
           ) : (
             <Grid container spacing={4}>
-              {articles.map((article) => (
+              {articles.map(article => (
                 <Grid item xs={12} sm={6} md={4} key={article.id}>
                   <Card
                     sx={{
@@ -147,6 +177,92 @@ function Home() {
                 </Grid>
               ))}
             </Grid>
+          )}
+        </Section>
+
+        {/* Fixtures Section */}
+        <Section title="Upcoming Fixtures for Top Teams">
+          {loadingFixtures ? (
+            <Typography>Loading fixtures...</Typography>
+          ) : fixtures.length === 0 ? (
+            <Typography>No upcoming fixtures.</Typography>
+          ) : (
+            <Grid container spacing={2}>
+              {fixtures.map((match, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 2,
+                      height: '100%',
+                      border: '1px solid #ddd',
+                    }}
+                  >
+                    <CardContent>
+                      <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Box display="flex" alignItems="center">
+                          <Avatar src={match.team_a?.logo} alt={match.team_a?.name} sx={{ mr: 1 }} />
+                          <Typography variant="subtitle1">{match.team_a?.name}</Typography>
+                        </Box>
+                        <Typography fontWeight="bold">VS</Typography>
+                        <Box display="flex" alignItems="center">
+                          <Typography variant="subtitle1" sx={{ mr: 1 }}>{match.team_b?.name}</Typography>
+                          <Avatar src={match.team_b?.logo} alt={match.team_b?.name} />
+                        </Box>
+                      </Box>
+                      <Divider sx={{ my: 1 }} />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        align="center"
+                      >
+                        {new Date(match.date).toLocaleString()} | {match.venue}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Section>
+
+        {/* Top Scorers Section */}
+        <Section title="Top Scorers">
+          {loadingScorers ? (
+            <Typography>Loading top scorers...</Typography>
+          ) : topScorers.length === 0 ? (
+            <Typography>No top scorers data.</Typography>
+          ) : (
+            <Paper
+              elevation={2}
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              {topScorers.map((player, idx) => (
+                <Box
+                  key={idx}
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{
+                    mb: idx < topScorers.length - 1 ? 1.5 : 0,
+                    p: 1,
+                    borderRadius: 2,
+                    '&:hover': { backgroundColor: 'action.hover' }
+                  }}
+                >
+                  <Box display="flex" alignItems="center">
+                    <Avatar src={player.photo} alt={player.name} sx={{ mr: 1 }} />
+                    <Typography>{player.name}</Typography>
+                  </Box>
+                  <Typography fontWeight="bold">{player.goals} ⚽</Typography>
+                </Box>
+              ))}
+            </Paper>
           )}
         </Section>
       </Container>

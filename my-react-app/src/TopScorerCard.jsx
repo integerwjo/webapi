@@ -6,10 +6,10 @@ const TopScorerCard = ({ player }) => {
 
   return (
     <Card
-      elevation={3}
+      elevation={0}
       sx={{
         background: 'linear-gradient(135deg, #fff3e0, #ffe0b2)',
-        borderRadius: 3,
+        //borderRadius: 3,
         border: '1px solid #fdd835',
       }}
     >
