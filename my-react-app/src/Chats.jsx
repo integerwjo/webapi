@@ -21,44 +21,51 @@ const ChatScreen = () => {
   const token = localStorage.getItem("access");
   const WS_URL = `ws://${window.location.hostname}:8000/ws/chat/?token=${token}`;
 
-  useEffect(() => {
-    const ws = new WebSocket(WS_URL);
+useEffect(() => {
+  const token = localStorage.getItem("access"); // get fresh token
+  console.log("Connecting with token:", token);
 
-    ws.onopen = () => console.log("WS opened:", WS_URL);
-    ws.onerror = (err) => console.error("WebSocket error:", err);
+  if (!token) {
+    console.error("No access token found!");
+    return;
+  }
 
-    ws.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data);
+  const wsUrl = `ws://localhost:8000/ws/chat/?token=${token}`;
+  const ws = new WebSocket(wsUrl);
 
-        // Matches structure from your Django consumer
-        if (data.message !== undefined && data.user !== undefined) {
-          setMessages((prev) => [
-            ...prev,
-            {
-              user: data.user || "Anonymous",
-              message: data.message || "",
-              time: data.timestamp
-                ? dayjs(data.timestamp).format("HH:mm")
-                : dayjs().format("HH:mm"),
-            },
-          ]);
-        } else {
-          parseAndPushString(e.data);
-        }
-      } catch {
+  ws.onopen = () => console.log("WS opened:", wsUrl);
+  ws.onerror = (err) => console.error("WebSocket error:", err);
+
+  ws.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data);
+
+      if (data.message !== undefined && data.user !== undefined) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            user: data.user || "Anonymous",
+            message: data.message || "",
+            time: data.timestamp
+              ? dayjs(data.timestamp).format("HH:mm")
+              : dayjs().format("HH:mm"),
+          },
+        ]);
+      } else {
         parseAndPushString(e.data);
       }
-    };
+    } catch {
+      parseAndPushString(e.data);
+    }
+  };
 
-    setSocket(ws);
-    return () => {
-      try {
-        ws.close();
-      } catch {}
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [WS_URL]);
+  setSocket(ws);
+
+  return () => {
+    ws.close();
+  };
+}, []);
+
 
   const parseAndPushString = (txt) => {
     if (!txt) return;
@@ -104,7 +111,6 @@ const ChatScreen = () => {
       sx={{
         maxWidth: 560,
         mx: "auto",
-        mt: 4,
         height: "82vh",
         display: "flex",
         flexDirection: "column",
@@ -114,14 +120,7 @@ const ChatScreen = () => {
         bgcolor: "background.default",
       }}
     >
-      {/* App Bar with username */}
-      <AppBar position="static" elevation={0} sx={{ background: 'linear-gradient(to right, #0f3540ff, #1a4b5aff)' }}>
-        <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography variant="body2" sx={{ opacity: 0.9 }}>
-            {username}
-          </Typography>
-        </Toolbar>
-      </AppBar>
+
 
       {/* Messages */}
       <Box
@@ -129,8 +128,8 @@ const ChatScreen = () => {
           flex: 1,
           p: 2,
           overflowY: "auto",
-          bgcolor: "#020512ff",
-        }}
+          background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)'
+       }}
       >
         {messages.map((m, i) => (
           <Paper
@@ -138,7 +137,7 @@ const ChatScreen = () => {
             elevation={0}
             sx={{
               p: 1,
-              mb: 1.25,
+              mb: 4.25,
               borderRadius: 1.2,
               border: "1px solid rgba(0,0,0,0.06)",
               bgcolor: "white",

@@ -4,7 +4,7 @@ import { Typography } from '@mui/material';
 
 const HeroTyping = () => {
   return (
-    <Typography variant="h4" fontWeight={600} textAlign="center" mt={4}>
+    <Typography  fontWeight={600} textAlign="center" mt={4}>
       <Typewriter
         words={[
           'Your sports app.',

@@ -22,7 +22,7 @@ const ClubDetailsCard = () => {
   const [team, setTeam] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/clubs/${id}/`)
+    fetch(`http://10.66.137.15:8000/api/clubs/${id}/`)
       .then(res => res.json())
       .then(setTeam)
       .catch(console.error);
@@ -91,7 +91,7 @@ const ClubDetailsCard = () => {
             src={
               top_scorer.photo?.startsWith('http')
                 ? top_scorer.photo
-                : `http://localhost:8000${top_scorer.photo}`
+                : `http://10.66.137.15:8000${top_scorer.photo}`
             }
             alt={top_scorer.name}
             sx={{ width: 64, height: 64, mr: 2 }}

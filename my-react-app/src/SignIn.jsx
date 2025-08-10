@@ -45,7 +45,7 @@ export default function SignIn() {
     setErrors({});
 
     try {
-      const response = await fetch("http://localhost:8000/api/token/", {
+      const response = await fetch("http://10.66.137.15:8000/api/token/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -82,7 +82,7 @@ export default function SignIn() {
         minHeight: '100vh',
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center',
+        //alignItems: 'center',
         px: 2,
         bgcolor: 'background.default',
       }}
@@ -93,11 +93,11 @@ export default function SignIn() {
             p: 5,
             bgcolor: 'background.paper',
             borderRadius: 3,
-            boxShadow: '0 2px 5px rgba(0,0,0,0.09)',
+            //boxShadow: '0 2px 5px rgba(0,0,0,0.09)',
           }}
         >
           <Stack direction="column" alignItems="center" spacing={2} mb={4}>
-            <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
+            <Avatar sx={{ bgcolor: '#12414eff', width: 56, height: 56 }}>
               <LockOutlinedIcon fontSize="large" />
             </Avatar>
             <Typography component="h1" variant="h5" fontWeight={600}>
@@ -169,7 +169,7 @@ export default function SignIn() {
               fullWidth
               variant="contained"
               size="large"
-              sx={{ mt: 3, mb: 2, borderRadius: 2, fontWeight: 600 }}
+              sx={{ mt: 3, mb: 2, borderRadius: 1, fontWeight: 600, backgroundColor: '#12414eff' }}
               disabled={loading}
               startIcon={loading && <CircularProgress size={20} />}
             >

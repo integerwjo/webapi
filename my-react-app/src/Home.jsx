@@ -28,7 +28,7 @@ function Home() {
 
   useEffect(() => {
     // Fetch news
-    fetch('http://localhost:8000/api/news/')
+    fetch('http://10.66.137.15:8000/api/news/')
       .then(res => res.json())
       .then(data => {
         setArticles(data);
@@ -40,7 +40,7 @@ function Home() {
       });
 
     // Fetch fixtures
-    fetch('http://localhost:8000/api/top-teams-fixtures/')
+    fetch('http://10.66.137.15:8000/api/top-teams-fixtures/')
       .then(res => res.json())
       .then(data => {
         const filtered = data
@@ -58,7 +58,7 @@ function Home() {
       });
 
     // Fetch top scorers
-    fetch('http://localhost:8000/api/top-scorers/')
+    fetch('http://10.66.137.15:8000/api/top-scorers/')
       .then(res => res.json())
       .then(data => {
         setTopScorers(data.slice(0, 3)); // take top 3
@@ -142,12 +142,12 @@ function Home() {
                       height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
-                      border: '1px solid #1a4b5aff',
+                      border: '1px solid #ddd',
                       borderRadius: 1,
                       transition: '0.2s',
                       '&:hover': {
-                        boxShadow: 2,
-                        borderColor: '#274472',
+                        boxShadow: 1,
+                        borderColor: '#ddddd',
                       },
                     }}
                     onClick={() => handleCardClick(article.id)}
@@ -192,9 +192,9 @@ function Home() {
           <Card
             variant="outlined"
             sx={{
-              borderRadius: 2,
+              borderRadius: 1,
               height: '100%',
-              border: '1px solid #ddd',
+              //border: '1px solid #ddd',
               p: 2,
               textAlign: 'center',
               cursor: 'default',
@@ -237,15 +237,16 @@ function Home() {
               p: 2,
               borderRadius: 1,
               cursor: 'pointer',
+              //border: '1px solid #ddd',
               transition: 'transform 0.2s ease',
               '&:hover': {
                 transform: 'scale(1.01)',
-                boxShadow: 2,
+                boxShadow: 1,
               },
             }}
           >
             <Avatar
-              src={`http://localhost:8000${player.photo}`}
+              src={`http://10.66.137.15:8000${player.photo}`}
               alt={player.player_name}
               sx={{ width: 64, height: 64, mr: 2, borderRadius: 2 }}
               variant="rounded"
