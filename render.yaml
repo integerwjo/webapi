@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: my-django-app
+    env: python
+    region: oregon # change as needed
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    startCommand: "daphne -b 0.0.0.0 -p 8000 webapi.asgi:application"
+    envVars:
+      - key: REDIS_URL
+        fromDatabase:
+          name: redis
+          property: primaryConnectionString
+    autoDeploy: true
+    instanceCount: 1
+    healthCheckPath: "/"
+  
+  - type: redis
+    name: redis
+    plan: free
