@@ -54,7 +54,7 @@ export default function SignUpForm() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8000/api/register/', {
+      const res = await fetch('http://10.66.137.120:8000/api/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

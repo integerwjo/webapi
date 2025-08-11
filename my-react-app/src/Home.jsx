@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 import HeroTyping from './HeroTyping';
+import TopTeamFixtures from './TopTeamsFixtures.jsx';
 
 function Home() {
   const [articles, setArticles] = useState([]);
@@ -28,7 +29,7 @@ function Home() {
 
   useEffect(() => {
     // Fetch news
-    fetch('http://10.66.137.15:8000/api/news/')
+    fetch('http://localhost:8000/api/news/')
       .then(res => res.json())
       .then(data => {
         setArticles(data);
@@ -40,16 +41,10 @@ function Home() {
       });
 
     // Fetch fixtures
-    fetch('http://10.66.137.15:8000/api/top-teams-fixtures/')
+    fetch('http://localhost:8000/api/top-teams-fixtures/')
       .then(res => res.json())
       .then(data => {
-        const filtered = data
-          .filter(match =>
-            topTeams.includes(match.team_a?.name) ||
-            topTeams.includes(match.team_b?.name)
-          )
-          .slice(0, 3);
-        setFixtures(filtered);
+        setFixtures(data);
         setLoadingFixtures(false);
       })
       .catch(err => {
@@ -58,7 +53,7 @@ function Home() {
       });
 
     // Fetch top scorers
-    fetch('http://10.66.137.15:8000/api/top-scorers/')
+    fetch('http://localhost:8000/api/top-scorers/')
       .then(res => res.json())
       .then(data => {
         setTopScorers(data.slice(0, 3)); // take top 3
@@ -138,6 +133,7 @@ function Home() {
               {articles.map(article => (
                 <Grid item xs={12} sm={6} md={4} key={article.id}>
                   <Card
+                  elevation={0}
                     sx={{
                       height: '100%',
                       display: 'flex',
@@ -146,7 +142,6 @@ function Home() {
                       borderRadius: 1,
                       transition: '0.2s',
                       '&:hover': {
-                        boxShadow: 1,
                         borderColor: '#ddddd',
                       },
                     }}
@@ -180,45 +175,6 @@ function Home() {
           )}
         </Section>
 
-<Section title="Upcoming Fixtures for Top Teams">
-  {loadingFixtures ? (
-    <Typography>Loading fixtures...</Typography>
-  ) : fixtures.length === 0 ? (
-    <Typography>No upcoming fixtures.</Typography>
-  ) : (
-    <Grid container spacing={2}>
-      {fixtures.map((match) => (
-        <Grid item xs={12} sm={6} md={4} key={match.id}>
-          <Card
-            variant="outlined"
-            sx={{
-              borderRadius: 1,
-              height: '100%',
-              //border: '1px solid #ddd',
-              p: 2,
-              textAlign: 'center',
-              cursor: 'default',
-              '&:hover': { backgroundColor: 'action.hover' },
-            }}
-          >
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
-              {match.team_a.name} VS {match.team_b.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              {new Date(match.date).toLocaleString()}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Venue: {match.venue}
-            </Typography>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
-  )}
-</Section>
-
-
-
         {/* Top Scorers Section */}
 <Section title="Top Scorers">
   {loadingScorers ? (
@@ -230,23 +186,22 @@ function Home() {
       {topScorers.map((player) => (
         <Grid item xs={12} sm={6} md={4} key={player.player_id}>
           <Card
-            elevation={1}
+            elevation={0}
             sx={{
               display: 'flex',
               alignItems: 'center',
               p: 2,
               borderRadius: 1,
               cursor: 'pointer',
-              //border: '1px solid #ddd',
+              border: '1px solid #ddd',
               transition: 'transform 0.2s ease',
               '&:hover': {
-                transform: 'scale(1.01)',
-                boxShadow: 1,
+                border: '1px solid #1f2937'
               },
             }}
           >
             <Avatar
-              src={`http://10.66.137.15:8000${player.photo}`}
+              src={`http://localhost:8000${player.photo}`}
               alt={player.player_name}
               sx={{ width: 64, height: 64, mr: 2, borderRadius: 2 }}
               variant="rounded"
@@ -276,7 +231,16 @@ function Home() {
     </Grid>
   )}
 </Section>
-
+    {/* Top Teams Fixtures Section */}
+        <Section title="Upcoming Fixtures">
+      {loadingFixtures ? (
+        <Typography>Loading fixtures...</Typography>
+      ) : fixtures.length === 0 ? (
+        <Typography>No upcoming fixtures.</Typography>
+      ) : (
+        <TopTeamFixtures fixtures={fixtures} />
+      )}
+    </Section>
       </Container>
     </Box>
   );

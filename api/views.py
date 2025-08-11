@@ -1,6 +1,6 @@
 from rest_framework import viewsets, filters
 from sports.models import Club, MatchResult, NewsArticle, ClubStats, MatchFixture, Player, PlayerStats
-from .serializers import ClubSerializer,MatchResultSerializer, NewsArticleSerializer, MatchFixtureSerializer, PlayerSerializer, LeagueStandingSerializer, ClubStatsSerializer, PlayerHighlightSerializer, PlayerStatsSerializer, TopScorerSerializer
+from .serializers import ClubSerializer,MatchResultSerializer, NewsArticleSerializer, MatchFixtureSerializer, PlayerSerializer, TopFixtureSerializer, ClubStatsSerializer, PlayerHighlightSerializer, PlayerStatsSerializer, TopScorerSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import F, ExpressionWrapper, IntegerField
@@ -15,7 +15,10 @@ from rest_framework import generics
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import EmailTokenObtainPairSerializer
 from django.db.models import Q
-
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework.response import Response
+from rest_framework import status
 
 
 
@@ -98,16 +101,32 @@ class TopScorersViewSet(viewsets.ViewSet):
 
 
 
-class TopTeamsFixturesViewSet(viewsets.ViewSet):
+
+class TopThreeFixturesViewSet(viewsets.ViewSet):
+    """
+    A ViewSet for listing fixtures involving the top 3 clubs.
+    """
     def list(self, request):
-        # Get top 3 unique clubs by points
-        top_club_ids = ClubStats.objects.order_by('-points').values_list('club', flat=True).distinct()[:3]
+        # Get top 3 clubs by points, with goals_for as tie-breaker
+        top_clubs = (
+            ClubStats.objects
+            .select_related("club")
+            .order_by("-points", "-goals_for")
+            .values_list("club_id", flat=True)[:3]
+        )
 
-        # Get fixtures for these clubs
+        # Get fixtures where either team is in the top 3
         fixtures = MatchFixture.objects.filter(
-            Q(team_a__in=top_club_ids) | Q(team_b__in=top_club_ids)
-        ).order_by('date').distinct()
+            team_a_id__in=top_clubs
+        ) | MatchFixture.objects.filter(
+            team_b_id__in=top_clubs
+        )
 
-        # Serialize fixtures (you need a serializer for MatchFixture)
-        serializer = MatchFixtureSerializer(fixtures, many=True)
-        return Response(serializer.data)
+        # Order by date
+        fixtures = fixtures.order_by("date")
+
+        serializer = TopFixtureSerializer(fixtures, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+

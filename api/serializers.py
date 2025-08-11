@@ -261,3 +261,13 @@ class TopScorerSerializer(serializers.Serializer):
     appearances = serializers.IntegerField()
     assists = serializers.IntegerField()
     photo = serializers.ImageField(source='player.photo')
+
+
+
+class TopFixtureSerializer(serializers.ModelSerializer):
+    team_a_name = serializers.CharField(source="team_a.name", read_only=True)
+    team_b_name = serializers.CharField(source="team_b.name", read_only=True)
+
+    class Meta:
+        model = MatchFixture
+        fields = ["id", "team_a", "team_a_name", "team_b", "team_b_name", "date", "venue"]

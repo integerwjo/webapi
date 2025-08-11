@@ -15,12 +15,33 @@ import {
   useMediaQuery,
   Divider,
   Slide,
-  Avatar
+  Avatar,
 } from '@mui/material';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
+import HomeIcon from '@mui/icons-material/Home';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
+import EventIcon from '@mui/icons-material/Event';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import GroupIcon from '@mui/icons-material/Group';
+import ChatIcon from '@mui/icons-material/Chat';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+
+const iconMap = {
+  Home: <HomeIcon />,
+  News: <NewspaperIcon />,
+  Fixtures: <EventIcon />,
+  Results: <SportsScoreIcon />,
+  'League Table': <TableChartIcon />,
+  Clubs: <GroupIcon />,
+  Chat: <ChatIcon />,
+  'Sign in': <LoginIcon />,
+  Logout: <LogoutIcon />,
+};
 
 const NavBar = () => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -54,11 +75,9 @@ const NavBar = () => {
   let navItems = [...baseNavItems];
 
   if (token) {
-    // If logged in, add Chat and Logout buttons
     navItems.push({ label: 'Chat', path: '/chat' });
     navItems.push({ label: 'Logout', action: handleLogout });
   } else {
-    // If not logged in, add Sign in
     navItems.push({ label: 'Sign in', path: '/sign-in' });
   }
 
@@ -107,8 +126,15 @@ const NavBar = () => {
                     },
                     textDecoration: 'none',
                     color: 'inherit',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
+                  {iconMap[label] && (
+                    <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+                      {iconMap[label]}
+                    </Box>
+                  )}
                   <ListItemText
                     primary={label}
                     primaryTypographyProps={{
@@ -133,8 +159,15 @@ const NavBar = () => {
                     },
                     textDecoration: 'none',
                     color: 'inherit',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
+                  {iconMap[label] && (
+                    <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+                      {iconMap[label]}
+                    </Box>
+                  )}
                   <ListItemText
                     primary={label}
                     primaryTypographyProps={{
@@ -149,7 +182,7 @@ const NavBar = () => {
         </List>
       </Box>
       <Box textAlign="center" fontSize="0.8rem" pb={2} color="text.secondary">
-        © {new Date().getFullYear()} My League
+        © {new Date().getFullYear()} Integer
       </Box>
     </Box>
   );
@@ -161,7 +194,8 @@ const NavBar = () => {
           elevation={3}
           position="sticky"
           sx={{
-            background: 'linear-gradient(to right, #0f3540ff, #1a4b5aff)',
+            //background: 'linear-gradient(to right, #0f3540ff, #1a4b5aff)',
+            backgroundColor:'#1f2937',
             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
           }}
         >
@@ -241,3 +275,4 @@ const NavBar = () => {
 };
 
 export default NavBar;
+

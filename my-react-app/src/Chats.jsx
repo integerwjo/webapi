@@ -1,71 +1,106 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
-  AppBar,
-  Toolbar,
-  Typography,
   Paper,
   TextField,
   IconButton,
+  Typography,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import dayjs from "dayjs";
 
+// Decode JWT without external lib
+const parseJwt = (token) => {
+  try {
+    return JSON.parse(atob(token.split(".")[1]));
+  } catch {
+    return null;
+  }
+};
+
+const isTokenExpired = (token) => {
+  if (!token) return true;
+  const decoded = parseJwt(token);
+  if (!decoded?.exp) return true;
+  return decoded.exp * 1000 < Date.now();
+};
+
+const getNewAccessToken = async (refreshToken) => {
+  try {
+    const res = await fetch("http://localhost:8000/api/token/refresh/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+    if (!res.ok) throw new Error("Failed to refresh token");
+    const data = await res.json();
+    if (data.access) {
+      localStorage.setItem("access", data.access);
+      return data.access;
+    }
+  } catch (err) {
+    console.error("Token refresh failed:", err);
+  }
+  return null;
+};
+
 const ChatScreen = () => {
   const [socket, setSocket] = useState(null);
-  const [messages, setMessages] = useState([]); // { user, message, time }
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
-
   const username = localStorage.getItem("username") || "Guest";
-  const token = localStorage.getItem("access");
-  const WS_URL = `ws://${window.location.hostname}:8000/ws/chat/?token=${token}`;
 
-useEffect(() => {
-  const token = localStorage.getItem("access"); // get fresh token
-  console.log("Connecting with token:", token);
+  // Connect WebSocket
+  const connectSocket = async () => {
+    let token = localStorage.getItem("access");
+    const refreshToken = localStorage.getItem("refresh");
 
-  if (!token) {
-    console.error("No access token found!");
-    return;
-  }
+    if (isTokenExpired(token) && refreshToken) {
+      token = await getNewAccessToken(refreshToken);
+    }
 
-  const wsUrl = `ws://localhost:8000/ws/chat/?token=${token}`;
-  const ws = new WebSocket(wsUrl);
+    if (!token) {
+      console.error("No valid token available for WS connection");
+      return;
+    }
 
-  ws.onopen = () => console.log("WS opened:", wsUrl);
-  ws.onerror = (err) => console.error("WebSocket error:", err);
+    const wsUrl = `ws://${window.location.hostname}:8000/ws/chat/?token=${token}`;
+    console.log("Connecting with token:", token);
+    const ws = new WebSocket(wsUrl);
 
-  ws.onmessage = (e) => {
-    try {
-      const data = JSON.parse(e.data);
+    ws.onopen = () => console.log("WS opened:", wsUrl);
+    ws.onerror = (err) => console.error("WebSocket error:", err);
 
-      if (data.message !== undefined && data.user !== undefined) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            user: data.user || "Anonymous",
-            message: data.message || "",
-            time: data.timestamp
-              ? dayjs(data.timestamp).format("HH:mm")
-              : dayjs().format("HH:mm"),
-          },
-        ]);
-      } else {
+    ws.onclose = (e) => {
+      console.warn("WebSocket closed. Reconnecting in 5s...", e.reason);
+      setTimeout(connectSocket, 5000);
+    };
+
+    ws.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.message !== undefined && data.user !== undefined) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              user: data.user || "Anonymous",
+              message: data.message || "",
+              time: data.timestamp
+                ? dayjs(data.timestamp).format("HH:mm")
+                : dayjs().format("HH:mm"),
+            },
+          ]);
+        } else {
+          parseAndPushString(e.data);
+        }
+      } catch {
         parseAndPushString(e.data);
       }
-    } catch {
-      parseAndPushString(e.data);
-    }
+    };
+
+    setSocket(ws);
   };
-
-  setSocket(ws);
-
-  return () => {
-    ws.close();
-  };
-}, []);
-
 
   const parseAndPushString = (txt) => {
     if (!txt) return;
@@ -86,6 +121,12 @@ useEffect(() => {
   };
 
   useEffect(() => {
+    connectSocket();
+    return () => socket?.close();
+    // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
 
@@ -94,12 +135,10 @@ useEffect(() => {
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
     const text = input.trim();
     if (!text) return;
-
-    // Matches expected backend format
     const payload = { message: text, user: username };
     try {
       socket.send(JSON.stringify(payload));
-      setInput(""); // Clear after sending
+      setInput("");
     } catch (err) {
       console.error("Send failed", err);
     }
@@ -117,19 +156,17 @@ useEffect(() => {
         borderRadius: 1,
         overflow: "hidden",
         border: "1px solid rgba(0,0,0,0.08)",
-        bgcolor: "background.default",
+        backgroundColor: "white",
       }}
     >
-
-
       {/* Messages */}
       <Box
         sx={{
           flex: 1,
           p: 2,
           overflowY: "auto",
-          background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)'
-       }}
+          backgroundColor: "#f9f9f9",
+        }}
       >
         {messages.map((m, i) => (
           <Paper
@@ -140,21 +177,18 @@ useEffect(() => {
               mb: 4.25,
               borderRadius: 1.2,
               border: "1px solid rgba(0,0,0,0.06)",
-              bgcolor: "white",
+              backgroundColor: "#1f2937",
             }}
           >
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "#075E54", fontWeight: 600 }}
-            >
+            <Typography variant="subtitle2" sx={{ color: "white", fontWeight: 600 }}>
               {m.user ?? "Anonymous"}
             </Typography>
-            <Typography variant="body1" sx={{ mt: 0.4 }}>
+            <Typography variant="body1" sx={{ mt: 0.4, color: "white" }}>
               {m.message}
             </Typography>
             <Typography
               variant="caption"
-              sx={{ display: "block", textAlign: "right", color: "gray" }}
+              sx={{ display: "block", textAlign: "right", color: "#f9f9f9" }}
             >
               {m.time}
             </Typography>
