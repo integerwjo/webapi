@@ -85,22 +85,23 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://10.66.137.15:3000",   # your React dev host (example)
     "http://localhost:3000",  # your React dev host (example)
+    'https://endebess-league.vercel.app/'
 ]
 
 
 WSGI_APPLICATION = 'webapi.wsgi.application'
 ASGI_APPLICATION = 'webapi.asgi.application'  
 
-
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [REDIS_URL]
+        },
+    },
 }
-
-
-
 
 
 # Database
@@ -164,6 +165,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 AUTHENTICATION_BACKENDS = [
