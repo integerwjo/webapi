@@ -76,15 +76,10 @@ TEMPLATES = [
     },
 ]
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = False
 
 
-CORS_ALLOWED_ORIGINS = [
-    "https://endebess-league.vercel.app", 
-    "http://10.66.137.15:3000",   # your React dev host (example)
-    "http://localhost:3000",  # your React dev host (example)
-     # your production host
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 WSGI_APPLICATION = 'webapi.wsgi.application'
