@@ -82,7 +82,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://10.66.137.15:3000",   # your React dev host (example)
     "http://localhost:3000",  # your React dev host (example)
-    'https://endebess-league.vercel.app/'
+    'https://endebess-league.vercel.app'
 ]
 
 
