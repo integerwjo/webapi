@@ -1,20 +1,27 @@
 services:
   - type: web
-    name: my-django-app
+    name: sports-app
     env: python
-    region: oregon # change as needed
     plan: free
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
-    startCommand: "daphne -b 0.0.0.0 -p 8000 webapi.asgi:application"
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: daphne -b 0.0.0.0 -p 8000 webapi.asgi:application
     envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: DJANGO_SETTINGS_MODULE
+        value: webapi.settings
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: ALLOWED_HOSTS
+        value: "sports-app.onrender.com"
       - key: REDIS_URL
-        fromDatabase:
-          name: redis
-          property: primaryConnectionString
-    autoDeploy: true
-    instanceCount: 1
-    healthCheckPath: "/"
-  
+        fromService:
+          name: sports-redis
+          type: redis
+
   - type: redis
-    name: redis
+    name: sports-redis
+    ipAllowList: []
     plan: free
