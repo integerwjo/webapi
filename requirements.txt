@@ -19,16 +19,14 @@ constantly
 coverage
 cryptography
 cs50
-
-
 cloudinary
 django-cloudinary-storage
-
 daphne
 Django
 django-cors-headers
 djangorestframework
 djangorestframework_simplejwt
+dj_database_url
 dnspython
 docutils
 email_validator

@@ -11,12 +11,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-
 from pathlib import Path
 import cloudinary_storage
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,9 +29,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "fallback_secret_key")
 #DEBUG = os.environ.get("DEBUG", "False") == "True"
 DEBUG = True  # Set to False in production
 
-ALLOWED_HOSTS = ["efl-v418.onrender.com", "localhost", "127.0.0.1", 'endebess-league.vercel.app']
+ALLOWED_HOSTS = ["efl-v418.onrender.com",
+                  "localhost", "127.0.0.1", 
+                  'endebess-league.vercel.app',
+                  'efl-v418-production.up.railway.app',]
 
-
+#
 # Application definition
 
 INSTALLED_APPS = [
@@ -89,6 +92,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://efl-v418.onrender.com",
     "https://endebess-league.vercel.app",
     "https://www.efl-v418.onrender.com",
+    "https://efl-v418-production.up.railway.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = False
@@ -100,13 +104,14 @@ CORS_ALLOW_ALL_ORIGINS = True
 WSGI_APPLICATION = 'webapi.wsgi.application'
 ASGI_APPLICATION = 'webapi.asgi.application'  
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+#postgres:dlBnrJsaHTjvruixjFKMnESSSCZDJyYP@postgres.railway.internal:5432/railway
+# Channels layer configuration
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [REDIS_URL]
+            "hosts": [REDIS_URL],
         },
     },
 }
@@ -116,12 +121,17 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
+    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+}
+
+'''
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+'''
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
