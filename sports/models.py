@@ -34,7 +34,7 @@ class ClubStats(models.Model):
 class NewsArticle(models.Model):
     title = models.CharField(max_length=200)
     summary = models.TextField()
-    image = models.ImageField(upload_to='articles/', blank=True, null=True)
+    image = CloudinaryField('image', blank=True, null=True)  # Cloudinary field
     date = models.DateField()
 
     def __str__(self):
@@ -111,6 +111,7 @@ class MatchResult(models.Model):
             pstats.save()
 
 
+
 class Player(models.Model):
     FOOT_CHOICES = [
         ('left', 'Left'),
@@ -125,13 +126,12 @@ class Player(models.Model):
     age = models.PositiveIntegerField(null=True, blank=True)
     height = models.PositiveIntegerField(help_text="Height in cm", null=True, blank=True)
     nationality = models.CharField(max_length=50, null=True, blank=True)
-    photo = models.ImageField(upload_to='players/photos/', null=True, blank=True)
+    photo = CloudinaryField('image', null=True, blank=True)  # changed here
     foot = models.CharField(max_length=5, choices=FOOT_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.club.name})"
-
-
+    
 class PlayerStats(models.Model):
     player = models.OneToOneField(Player, on_delete=models.CASCADE, related_name='stats')
     appearances = models.PositiveIntegerField(default=0)
