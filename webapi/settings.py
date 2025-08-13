@@ -13,21 +13,21 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 
 from pathlib import Path
-
+import cloudinary_storage
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "fallback_secret_key")
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+#DEBUG = os.environ.get("DEBUG", "False") == "True"
+DEBUG = True  # Set to False in production
 
 ALLOWED_HOSTS = ["efl-v418.onrender.com", "localhost", "127.0.0.1", 'endebess-league.vercel.app']
 
@@ -48,8 +48,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'sports.apps.SportsConfig',
     'chat', 
+    'cloudinary',
+    'cloudinary_storage',
    
 ]
+
 
 
 MIDDLEWARE = [
@@ -160,8 +163,26 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+MEDIA_URL = '/media/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
+
+
+
+cloudinary.config(
+    cloud_name='dkn7bghvy',
+    api_key='297961694138647',
+    api_secret='UHv5rLqMAyDEqMNYbDEEC0bBnPc',
+    secure=True
+)
+
+STATIC_URL = 'static/'
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+

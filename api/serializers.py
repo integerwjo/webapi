@@ -1,12 +1,8 @@
 from rest_framework import serializers
 from sports.models import Club, MatchResult, NewsArticle, ClubStats, MatchFixture, PlayerStats, Player, Goal
 from django.db.models import F, Count
-from rest_framework import serializers
-from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.models import User
-from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 
@@ -70,16 +66,19 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class PlayerHighlightSerializer(serializers.ModelSerializer):
     stat = serializers.SerializerMethodField()
-    photo = serializers.ImageField(allow_null=True)
-
+    photo_url = serializers.SerializerMethodField()  # return URL
 
     class Meta:
         model = Player
-        fields = ['id', 'name', 'stat', 'photo']
+        fields = ['id', 'name', 'stat', 'photo_url']
 
     def get_stat(self, obj):
-        # 'stat_value' must be provided in serializer context
         return self.context.get('stat_value', None)
+
+    def get_photo_url(self, obj):
+        if obj.photo:
+            return obj.photo.url
+        return None
 
 
 
@@ -112,38 +111,38 @@ class PlayerStatsSerializer(serializers.ModelSerializer):
             'red_cards',
         ]
 
+
 class PlayerSerializer(serializers.ModelSerializer):
     stats = PlayerStatsSerializer(read_only=True)
     club_name = serializers.CharField(source='club.name', read_only=True)
+    photo_url = serializers.SerializerMethodField()  # new field
 
     class Meta:
         model = Player
         fields = [
-            'id',
-            'name',
-            'position',
-            'number',
-            'age',
-            'height',
-            'nationality',
-            'photo',
-            'foot',
-            'club',
-            'club_name',
-            'stats',  # nested stats
+            'id', 'name', 'position', 'number', 'age', 'height', 'nationality',
+            'photo', 'photo_url', 'foot', 'club', 'club_name', 'stats'
         ]
+
+    def get_photo_url(self, obj):
+        if obj.photo:
+            return obj.photo.url
+        return None
 
 
 class ClubSerializer(serializers.ModelSerializer):
     players = PlayerSerializer(many=True, read_only=True)
     top_scorer = serializers.SerializerMethodField()
+    logo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Club
-        fields = ['id', 'name', 'coach', 'logo', 'players', 'top_scorer']
+        fields = ['id', 'name', 'coach', 'logo', 'logo_url', 'players', 'top_scorer']
+
+    def get_logo_url(self, obj):
+        return obj.logo.url if obj.logo else None  # Works with CloudinaryField
 
     def get_top_scorer(self, club):
-        # Aggregate goals grouped by player, filtered by this club
         top_goal = (
             Goal.objects.filter(player__club=club)
             .values('player')
@@ -151,17 +150,14 @@ class ClubSerializer(serializers.ModelSerializer):
             .order_by('-goal_count')
             .first()
         )
-
         if not top_goal:
             return None
-
-        # Retrieve player instance
         try:
             player = Player.objects.get(id=top_goal['player'])
             return {
                 'id': player.id,
                 'name': player.name,
-                'photo': player.photo.url if player.photo else None,
+                'photo_url': player.photo.url if player.photo else None,
                 'stat': top_goal['goal_count'],
             }
         except Player.DoesNotExist:
@@ -169,13 +165,16 @@ class ClubSerializer(serializers.ModelSerializer):
 
 
 class ClubStatsSerializer(serializers.ModelSerializer):
-    club_logo = serializers.ImageField(source='club.logo', read_only=True)
+    club_logo_url = serializers.SerializerMethodField()
     club_name = serializers.CharField(source='club.name', read_only=True)
-
+    
     class Meta:
         model = ClubStats
-        fields = ['club_name', 'club_logo', 'played', 'wins', 'draws', 'losses', 'goals_for', 'goals_against', 'points']
+        fields = ['club_name', 'club_logo_url', 'played', 'wins', 'draws', 'losses', 'goals_for', 'goals_against', 'points']
 
+    def get_club_logo_url(self, obj):
+        return obj.club.logo.url if obj.club and obj.club.logo else None
+    
 
 class MatchResultSerializer(serializers.ModelSerializer):
     team_a = ClubSerializer(read_only=True)
@@ -194,9 +193,16 @@ class MatchResultSerializer(serializers.ModelSerializer):
         ]
 
 class NewsArticleSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()  # return URL
+
     class Meta:
         model = NewsArticle
-        fields = ['id', 'title', 'summary', 'image', 'date']
+        fields = ['id', 'title', 'summary', 'image', 'image_url', 'date']
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
 class ClubStatsSerializer(serializers.ModelSerializer):
@@ -260,7 +266,10 @@ class TopScorerSerializer(serializers.Serializer):
     goals = serializers.IntegerField()
     appearances = serializers.IntegerField()
     assists = serializers.IntegerField()
-    photo = serializers.ImageField(source='player.photo')
+    photo_url = serializers.SerializerMethodField()
+
+    def get_photo_url(self, obj):
+        return obj.player.photo.url if obj.player and obj.player.photo else None
 
 
 

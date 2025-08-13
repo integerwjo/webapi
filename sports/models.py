@@ -1,16 +1,17 @@
 from django.db import models
 from django.db.models import F
 from django.core.exceptions import ValidationError
-
+from cloudinary.models import CloudinaryField
 
 
 class Club(models.Model):
     name = models.CharField(max_length=100)
-    logo = models.ImageField(upload_to='team_logos/', null=True, blank=True)
+    logo = CloudinaryField('image', null=True, blank=True)
     coach = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
+
 
 
 class ClubStats(models.Model):
