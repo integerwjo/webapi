@@ -85,6 +85,12 @@ TEMPLATES = [
     },
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://efl-v418.onrender.com",
+    "https://endebess-league.vercel.app",
+    "https://www.efl-v418.onrender.com",
+]
+
 CORS_ALLOW_CREDENTIALS = False
 
 
