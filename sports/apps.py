@@ -6,5 +6,3 @@ class SportsConfig(AppConfig):
     name = 'sports'
 
     
-    def ready(self):
-        import sports.signals
