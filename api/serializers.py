@@ -71,7 +71,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class PlayerStatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlayerStats
-        fields = ['appearances', 'goals', 'assists', 'yellow_cards', 'red_cards']
+        fields = ['assists', 'yellow_cards', 'red_cards']
 
 
 class PlayerSerializer(serializers.ModelSerializer):
