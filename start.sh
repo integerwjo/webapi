@@ -11,8 +11,6 @@ for i in $(seq 1 10); do
     sleep 3
 done
 
-echo "Creating superuser..."
-python webapi/create_superuser.py || echo "Failed to create superuser"
 
 echo "Collecting static files..."
 python manage.py collectstatic --noinput

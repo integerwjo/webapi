@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from .serializers import UserSerializer
+from django.db.models import Count
 from rest_framework import generics
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import EmailTokenObtainPairSerializer
@@ -50,31 +51,41 @@ class ClubStatsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ClubStats.objects.select_related('club').order_by('-points')
     serializer_class = ClubStatsSerializer
 
+
 class PlayerHighlightsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Player.objects.all()
     serializer_class = PlayerHighlightSerializer
 
     @action(detail=False, methods=['get'])
     def highlights(self, request):
-        top_scorer = Player.objects.annotate(goals=F('stats__goals')).order_by('-goals').first()
-        top_assister = Player.objects.annotate(assists=F('stats__assists')).order_by('-assists').first()
+        top_scorer = Player.objects.annotate(
+            goals=Count('goal')
+        ).order_by('-goals').first()
+
+        top_assister = Player.objects.annotate(
+            assists=F('stats__assists')
+        ).order_by('-assists').first()
+
         top_ga = Player.objects.annotate(
+            goals=Count('goal'),
+            assists=F('stats__assists'),
             goal_assist=ExpressionWrapper(
-                F('stats__goals') + F('stats__assists'),
+                Count('goal') + F('stats__assists'),
                 output_field=IntegerField()
             )
         ).order_by('-goal_assist').first()
 
         data = {}
+
         for label, player, stat_field in [
             ('top_scorer', top_scorer, 'goals'),
             ('top_assister', top_assister, 'assists'),
-            ('top_ga', top_ga, 'goal_assist')
+            ('top_ga', top_ga, 'goal_assist'),
         ]:
             if player:
-                stat_value = getattr(player, stat_field)
+                stat_value = getattr(player, stat_field, 0)
                 serializer = PlayerHighlightSerializer(
-                    player, 
+                    player,
                     context={'stat_value': stat_value}
                 )
                 data[label] = serializer.data
@@ -93,13 +104,20 @@ class EmailTokenObtainPairView(TokenObtainPairView):
     serializer_class = EmailTokenObtainPairSerializer
 
 
-class TopScorersViewSet(viewsets.ViewSet):
+
+class TopScorerViewSet(viewsets.ViewSet):
     def list(self, request):
-        top_scorers = PlayerStats.objects.select_related('player', 'player__club').order_by('-goals')[:3]
+        top_scorers = (
+            Player.objects
+            .annotate(
+                goals=Count('goal'),
+                assists=Count('stats__assists')
+            )
+            .order_by('-goals')[:3]
+        )
+
         serializer = TopScorerSerializer(top_scorers, many=True)
         return Response(serializer.data)
-
-
 
 
 class TopThreeFixturesViewSet(viewsets.ViewSet):

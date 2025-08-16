@@ -82,7 +82,7 @@ class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = [
-            'id', 'name', 'position', 'number', 'age', 'height', 'nationality',
+            'id', 'name', 'position', 'number', 'age', 'height',
             'photo', 'photo_url', 'foot', 'club', 'club_name', 'stats'
         ]
 
@@ -91,15 +91,20 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 
 class PlayerHighlightSerializer(serializers.ModelSerializer):
-    stat = serializers.IntegerField(source='stats.goals', read_only=True)
+    stat = serializers.SerializerMethodField()
     photo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Player
         fields = ['id', 'name', 'stat', 'photo_url']
 
+    def get_stat(self, obj):
+        # stat_value is passed from the view via context
+        return self.context.get('stat_value', 0)
+
     def get_photo_url(self, obj):
         return getattr(obj.photo, 'url', None)
+
 
 
 # ========================
@@ -226,7 +231,6 @@ class TopScorerSerializer(serializers.Serializer):
     player_name = serializers.CharField(source='player.name')
     club_name = serializers.CharField(source='player.club.name')
     goals = serializers.IntegerField()
-    appearances = serializers.IntegerField()
     assists = serializers.IntegerField()
     photo_url = serializers.SerializerMethodField()
 
