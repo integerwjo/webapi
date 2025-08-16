@@ -105,7 +105,7 @@ class EmailTokenObtainPairView(TokenObtainPairView):
 
 
 
-class TopScorerViewSet(viewsets.ViewSet):
+class TopScorersViewSet(viewsets.ViewSet):
     def list(self, request):
         top_scorers = (
             Player.objects
