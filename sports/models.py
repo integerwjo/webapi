@@ -119,13 +119,19 @@ class Player(models.Model):
         ('both', 'Both'),
     ]
 
+    POSITION_CHOICES = [
+        ('gk', 'Goalkeeper'),
+        ('defender', 'Defender'),
+        ('midfielder', 'Midfielder'),
+        ('forward', 'Forward'),
+    ]
+
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='players')
     name = models.CharField(max_length=100)
-    position = models.CharField(max_length=50)
+    position = models.CharField(max_length=50, choices=POSITION_CHOICES, null=True, blank=True)
     number = models.PositiveIntegerField(null=True, blank=True)
     age = models.PositiveIntegerField(null=True, blank=True)
     height = models.PositiveIntegerField(help_text="Height in cm", null=True, blank=True)
-    nationality = models.CharField(max_length=50, null=True, blank=True)
     photo = CloudinaryField('image', null=True, blank=True)  # changed here
     foot = models.CharField(max_length=5, choices=FOOT_CHOICES, null=True, blank=True)
 
@@ -134,8 +140,6 @@ class Player(models.Model):
     
 class PlayerStats(models.Model):
     player = models.OneToOneField(Player, on_delete=models.CASCADE, related_name='stats')
-    appearances = models.PositiveIntegerField(default=0)
-    goals = models.PositiveIntegerField(default=0)
     assists = models.PositiveIntegerField(default=0)
     yellow_cards = models.PositiveIntegerField(default=0)
     red_cards = models.PositiveIntegerField(default=0)

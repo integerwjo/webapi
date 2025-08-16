@@ -10,7 +10,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return ChatMessage.objects.create(user=user, message=message)
 
     @database_sync_to_async
-    def get_last_messages(self, limit=20):
+    def get_last_messages(self, limit=30):
         return list(
             ChatMessage.objects.order_by('-timestamp')[:limit]
             .values('user__username', 'message', 'timestamp')
@@ -29,7 +29,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Send last messages when connecting
         last_messages = await self.get_last_messages()
-        for msg in reversed(last_messages):  # oldest first
+        for msg in reversed(last_messages):  
             await self.send(text_data=json.dumps({
                 'message': msg['message'],
                 'user': msg['user__username'],
