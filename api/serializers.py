@@ -178,15 +178,41 @@ class LeagueStandingSerializer(serializers.ModelSerializer):
 # ========================
 # Match Serializers
 # ========================
+class GoalSerializer(serializers.ModelSerializer):
+    player_name = serializers.CharField(source='player.name', read_only=True)
+    photo_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Goal
+        fields = ['player_name', 'photo_url', 'minute']
+
+    def get_photo_url(self, obj):
+        return getattr(obj.player.photo, 'url', None)
+
+
+
+
 class MatchResultSerializer(serializers.ModelSerializer):
     team_a = ClubSerializer(read_only=True)
     team_b = ClubSerializer(read_only=True)
     team_a_id = serializers.PrimaryKeyRelatedField(queryset=Club.objects.all(), source='team_a', write_only=True)
     team_b_id = serializers.PrimaryKeyRelatedField(queryset=Club.objects.all(), source='team_b', write_only=True)
+    goals = GoalSerializer(many=True, read_only=True)
 
     class Meta:
         model = MatchResult
-        fields = ['id', 'team_a', 'team_b', 'team_a_id', 'team_b_id', 'score_a', 'score_b', 'date', 'venue']
+        fields = [
+            'id',
+            'team_a',
+            'team_b',
+            'team_a_id',
+            'team_b_id',
+            'score_a',
+            'score_b',
+            'date',
+            'venue',
+            'goals',
+        ]
 
 
 class MatchFixtureSerializer(serializers.ModelSerializer):
@@ -197,16 +223,36 @@ class MatchFixtureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MatchFixture
-        fields = ['id', 'team_a', 'team_b', 'team_a_id', 'team_b_id', 'date', 'venue']
+        fields = ['id', 'team_a','team_b', 'team_a_id', 'team_b_id', 'date', 'venue']
 
+from rest_framework import serializers
 
 class TopFixtureSerializer(serializers.ModelSerializer):
     team_a_name = serializers.CharField(source="team_a.name", read_only=True)
     team_b_name = serializers.CharField(source="team_b.name", read_only=True)
+    team_a_logo = serializers.SerializerMethodField()
+    team_b_logo = serializers.SerializerMethodField()
+
+    def get_team_a_logo(self, obj):
+        return getattr(obj.team_a, "logo_url", None)
+
+    def get_team_b_logo(self, obj):
+        return getattr(obj.team_b, "logo_url", None)
 
     class Meta:
         model = MatchFixture
-        fields = ["id", "team_a", "team_a_name", "team_b", "team_b_name", "date", "venue"]
+        fields = [
+            "id",
+            "team_a",
+            "team_a_name",
+            "team_a_logo",
+            "team_b",
+            "team_b_name",
+            "team_b_logo",
+            "date",
+            "venue",
+        ]
+
 
 
 # ========================
@@ -226,13 +272,16 @@ class NewsArticleSerializer(serializers.ModelSerializer):
 # ========================
 # Extra Stats Serializers
 # ========================
-class TopScorerSerializer(serializers.Serializer):
-    player_id = serializers.IntegerField(source='player.id')
-    player_name = serializers.CharField(source='player.name')
-    club_name = serializers.CharField(source='player.club.name')
+class TopScorerSerializer(serializers.ModelSerializer):
+    club_name = serializers.CharField(source='club.name')
     goals = serializers.IntegerField()
     assists = serializers.IntegerField()
     photo_url = serializers.SerializerMethodField()
 
+    class Meta:
+        model = Player
+        fields = ['id', 'name', 'club_name', 'goals', 'assists', 'photo_url']
+
     def get_photo_url(self, obj):
-        return getattr(obj.player.photo, 'url', None)
+        return getattr(obj.photo, 'url', None)
+

@@ -105,13 +105,14 @@ class EmailTokenObtainPairView(TokenObtainPairView):
 
 
 
+
 class TopScorersViewSet(viewsets.ViewSet):
     def list(self, request):
         top_scorers = (
             Player.objects
             .annotate(
                 goals=Count('goal'),
-                assists=Count('stats__assists')
+                assists=Count('stats__assists')  # remove/adjust if no stats model
             )
             .order_by('-goals')[:3]
         )

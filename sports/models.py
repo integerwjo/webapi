@@ -120,11 +120,25 @@ class Player(models.Model):
     ]
 
     POSITION_CHOICES = [
-        ('gk', 'Goalkeeper'),
-        ('defender', 'Defender'),
-        ('midfielder', 'Midfielder'),
-        ('forward', 'Forward'),
+    ('gk', 'Goalkeeper'),
+    ('rb', 'Right Back'),
+    ('rcb', 'Right Center Back'),
+    ('cb', 'Center Back'),
+    ('lcb', 'Left Center Back'),
+    ('lb', 'Left Back'),
+    ('cdm', 'Central Defensive Midfielder'),
+    ('rm', 'Right Midfielder'),
+    ('cm', 'Central Midfielder'),
+    ('lm', 'Left Midfielder'),
+    ('cam', 'Central Attacking Midfielder'),
+    ('rw', 'Right Winger'),
+    ('lw', 'Left Winger'),
+    ('cf', 'Center Forward'),
+    ('st', 'Striker'),
+    ('ss', 'Second Striker'),
+    ('utility', 'Utility Player'),
     ]
+
 
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='players')
     name = models.CharField(max_length=100)
