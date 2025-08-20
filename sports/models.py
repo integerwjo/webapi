@@ -41,6 +41,21 @@ class NewsArticle(models.Model):
         return self.title
 
 
+class ClubNewsArticle(models.Model):
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='club_news')
+    title = models.CharField(max_length=200)
+    summary = models.TextField()
+    image = CloudinaryField('image', blank=True, null=True)  # Cloudinary field
+    date = models.DateField()
+
+    def __str__(self):
+        return self.title
+
+
+
+
+
+
 class MatchFixture(models.Model):
     team_a = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='home_fixtures')
     team_b = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='away_fixtures')
@@ -146,7 +161,7 @@ class Player(models.Model):
     number = models.PositiveIntegerField(null=True, blank=True)
     age = models.PositiveIntegerField(null=True, blank=True)
     height = models.PositiveIntegerField(help_text="Height in cm", null=True, blank=True)
-    photo = CloudinaryField('image', null=True, blank=True)  # changed here
+    photo = CloudinaryField('image', null=True, blank=True) 
     foot = models.CharField(max_length=5, choices=FOOT_CHOICES, null=True, blank=True)
 
     def __str__(self):
@@ -176,3 +191,5 @@ class Goal(models.Model):
 
     def __str__(self):
         return f"{self.player.name} scored in {self.match}"
+
+

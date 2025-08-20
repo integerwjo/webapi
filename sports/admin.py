@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.forms.models import BaseInlineFormSet
-from .models import MatchFixture, MatchResult, Club, Player, PlayerStats, ClubStats, Goal, NewsArticle
+from .models import MatchFixture, MatchResult, Club, Player, PlayerStats, ClubStats, Goal, NewsArticle, ClubNewsArticle
 
 
 # --- PLAYER ADMIN (for goal assignment autocomplete) ---
@@ -85,3 +85,4 @@ admin.site.register(Club)
 admin.site.register(PlayerStats)
 admin.site.register(ClubStats)
 admin.site.register(NewsArticle)
+admin.site.register(ClubNewsArticle)

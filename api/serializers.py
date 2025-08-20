@@ -285,3 +285,19 @@ class TopScorerSerializer(serializers.ModelSerializer):
     def get_photo_url(self, obj):
         return getattr(obj.photo, 'url', None)
 
+
+
+
+from sports.models import ClubNewsArticle
+
+class ClubNewsArticleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ClubNewsArticle
+        fields = [
+            'id',
+            'title',
+            'summary',
+            'date',
+            'image',
+        ]

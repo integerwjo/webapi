@@ -93,6 +93,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://endebess-league.vercel.app",
     "https://www.efl-v418.onrender.com",
     "https://efl-v418-production.up.railway.app",
+    "http://localhost:8000",
+
 ]
 
 CORS_ALLOW_CREDENTIALS = False
@@ -105,8 +107,7 @@ WSGI_APPLICATION = 'webapi.wsgi.application'
 ASGI_APPLICATION = 'webapi.asgi.application'  
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-#postgres:dlBnrJsaHTjvruixjFKMnESSSCZDJyYP@postgres.railway.internal:5432/railway
-# Channels layer configuration
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -119,7 +120,7 @@ CHANNEL_LAYERS = {
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL'),
@@ -134,7 +135,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-'''
+
 
 
 REST_FRAMEWORK = {

@@ -1,14 +1,10 @@
 from rest_framework import viewsets, filters
 from sports.models import Club, MatchResult, NewsArticle, ClubStats, MatchFixture, Player, PlayerStats
 from .serializers import ClubSerializer,MatchResultSerializer, NewsArticleSerializer, MatchFixtureSerializer, PlayerSerializer, TopFixtureSerializer, ClubStatsSerializer, PlayerHighlightSerializer, PlayerStatsSerializer, TopScorerSerializer
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import F, ExpressionWrapper, IntegerField
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from .serializers import UserSerializer
 from django.db.models import Count
@@ -16,13 +12,8 @@ from rest_framework import generics
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import EmailTokenObtainPairSerializer
 from django.db.models import Q
-from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework.response import Response
 from rest_framework import status
-
-
-
 from rest_framework.decorators import action
 
 class ClubViewSet(viewsets.ModelViewSet):
@@ -105,14 +96,13 @@ class EmailTokenObtainPairView(TokenObtainPairView):
 
 
 
-
 class TopScorersViewSet(viewsets.ViewSet):
     def list(self, request):
         top_scorers = (
             Player.objects
             .annotate(
                 goals=Count('goal'),
-                assists=Count('stats__assists')  # remove/adjust if no stats model
+                assists=Count('stats__assists')  
             )
             .order_by('-goals')[:3]
         )
@@ -122,9 +112,6 @@ class TopScorersViewSet(viewsets.ViewSet):
 
 
 class TopThreeFixturesViewSet(viewsets.ViewSet):
-    """
-    A ViewSet for listing fixtures involving the top 3 clubs.
-    """
     def list(self, request):
         # Get top 3 clubs by points, with goals_for as tie-breaker
         top_clubs = (
@@ -149,3 +136,57 @@ class TopThreeFixturesViewSet(viewsets.ViewSet):
 
 
 
+
+from sports.models import MatchFixture, MatchResult, ClubNewsArticle
+from .serializers import MatchFixtureSerializer, MatchResultSerializer, ClubNewsArticleSerializer
+
+class ClubFixturesViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = MatchFixtureSerializer
+
+    def get_queryset(self):
+        club_id = self.kwargs['club_id']
+        return MatchFixture.objects.filter(team_a__id=club_id) | MatchFixture.objects.filter(team_b__id=club_id)
+
+
+class ClubResultsViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = MatchResultSerializer
+
+    def get_queryset(self):
+        club_id = self.kwargs['club_id']
+        return MatchResult.objects.filter(team_a__id=club_id) | MatchResult.objects.filter(team_b__id=club_id)
+
+
+class ClubNewsViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ClubNewsArticleSerializer
+
+    def get_queryset(self):
+        club_id = self.kwargs['club_id']
+        return ClubNewsArticle.objects.filter(club__id=club_id)
+
+from rest_framework.viewsets import ViewSet
+from django.shortcuts import get_object_or_404
+
+class ClubContentViewSet(ViewSet):
+    """
+    Returns news, fixtures, and results related to a specific club.
+    """
+    def retrieve(self, request, pk=None):
+        club = get_object_or_404(Club, pk=pk)
+
+        # Fetch related content
+        news = ClubNewsArticle.objects.filter(club=club).order_by('-date')
+        fixtures = MatchFixture.objects.filter(team_a=club) | MatchFixture.objects.filter(team_b=club)
+        results = MatchResult.objects.filter(team_a=club) | MatchResult.objects.filter(team_b=club)
+
+        # Serialize
+        news_data = ClubNewsArticleSerializer(news, many=True).data
+        fixture_data = MatchFixtureSerializer(fixtures, many=True).data
+        result_data = MatchResultSerializer(results, many=True).data
+
+        return Response({
+            'club_id': club.id,
+            'club_name': club.name,
+            'news': news_data,
+            'fixtures': fixture_data,
+            'results': result_data,
+        }, status=status.HTTP_200_OK)

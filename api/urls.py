@@ -4,10 +4,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     ClubStatsViewSet, ClubViewSet, MatchResultViewSet, NewsArticleViewSet,
     MatchFixtureViewSet, PlayerHighlightsViewSet, PlayerViewSet,
-    RegisterView, EmailTokenObtainPairView, TopScorersViewSet, TopThreeFixturesViewSet
+    RegisterView, TopScorersViewSet, TopThreeFixturesViewSet, ClubContentViewSet
 )
 
 router = DefaultRouter()
+router.register(r'clubs-content', ClubContentViewSet, basename='club-content')
 router.register(r'top-scorers', TopScorersViewSet, basename='top-scorers')
 router.register(r'clubs', ClubViewSet, basename='club')
 router.register(r'results', MatchResultViewSet, basename='results')
