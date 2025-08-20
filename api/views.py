@@ -190,3 +190,38 @@ class ClubContentViewSet(ViewSet):
             'fixtures': fixture_data,
             'results': result_data,
         }, status=status.HTTP_200_OK)
+
+
+from rest_framework import viewsets, permissions
+from django.contrib.auth.models import User
+from chat.models import ChatMessage
+from .serializers import UserWithMessagesSerializer, MessageSerializer
+
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @action(detail=False, methods=['get', 'delete'], url_path='me')
+    def me(self, request):
+        if request.method == 'GET':
+            serializer = self.get_serializer(request.user)
+            return Response(serializer.data)
+        elif request.method == 'DELETE':
+            request.user.delete()
+            return Response({"detail": "Account deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+class MessageViewSet(viewsets.ModelViewSet):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return ChatMessage.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

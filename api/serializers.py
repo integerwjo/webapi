@@ -3,6 +3,7 @@ from sports.models import (
     Club, MatchResult, NewsArticle, ClubStats, MatchFixture,
     PlayerStats, Player, Goal
 )
+from chat.models import ChatMessage
 from django.db.models import Count
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
@@ -301,3 +302,16 @@ class ClubNewsArticleSerializer(serializers.ModelSerializer):
             'date',
             'image',
         ]
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChatMessage
+        fields = ["id", "content", "created_at"]
+
+class UserWithMessagesSerializer(serializers.ModelSerializer):
+    messages = MessageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "messages"]

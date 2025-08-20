@@ -4,7 +4,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     ClubStatsViewSet, ClubViewSet, MatchResultViewSet, NewsArticleViewSet,
     MatchFixtureViewSet, PlayerHighlightsViewSet, PlayerViewSet,
-    RegisterView, TopScorersViewSet, TopThreeFixturesViewSet, ClubContentViewSet
+    RegisterView, TopScorersViewSet, TopThreeFixturesViewSet, ClubContentViewSet,
+    UserViewSet, MessageViewSet,
 )
 
 router = DefaultRouter()
@@ -18,6 +19,8 @@ router.register(r'players', PlayerViewSet, basename='players')
 router.register(r'standings', ClubStatsViewSet, basename='standings')
 router.register(r'player-highlights', PlayerHighlightsViewSet, basename='player-highlights')
 router.register(r'top-teams-fixtures', TopThreeFixturesViewSet, basename='top-teams-fixtures')
+router.register(r'users', UserViewSet, basename='user')
+router.register(r'messages', MessageViewSet, basename='message')
 
 
 urlpatterns = [
