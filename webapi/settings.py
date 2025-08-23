@@ -53,8 +53,11 @@ INSTALLED_APPS = [
     'chat', 
     'cloudinary',
     'cloudinary_storage',
+    "django_apscheduler",
    
 ]
+
+
 
 
 
@@ -120,7 +123,7 @@ CHANNEL_LAYERS = {
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL'),
@@ -135,7 +138,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-'''
+
 
 
 REST_FRAMEWORK = {
@@ -207,3 +210,10 @@ STATIC_URL = 'static/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "wanderaotieno321@gmail.com"
+EMAIL_HOST_PASSWORD = "wjo@2023"  # use App Password, not your normal password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

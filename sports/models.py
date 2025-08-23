@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import F
 from django.core.exceptions import ValidationError
 from cloudinary.models import CloudinaryField
-
+from django.contrib.auth.models import User
 
 class Club(models.Model):
     name = models.CharField(max_length=100)
@@ -193,3 +193,13 @@ class Goal(models.Model):
         return f"{self.player.name} scored in {self.match}"
 
 
+class ClubSubscriber(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="subscriptions")
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="subscribers")
+    email = models.EmailField()
+
+    class Meta:
+        unique_together = ("user", "club")
+
+    def __str__(self):
+        return f"{self.user.username} subscribed to {self.club.name}"

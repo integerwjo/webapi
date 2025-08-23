@@ -23,6 +23,7 @@ cloudinary
 django-cloudinary-storage
 daphne
 Django
+django_apscheduler
 django-cors-headers
 djangorestframework
 djangorestframework_simplejwt
