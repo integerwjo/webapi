@@ -225,3 +225,26 @@ class MessageViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+
+from sports.models import PlayerStats
+from .serializers import PlayerStatsSerializer
+
+class PlayerStatsView(viewsets.ViewSet):
+    serializer_class = PlayerStatsSerializer
+
+   
+    def list(self, request):
+        players = (
+            Player.objects
+            .annotate(
+                goals=Count('goal'),
+            )
+            .order_by('-goals')
+        )
+
+        serializer = TopScorerSerializer(players, many=True)
+        return Response(serializer.data)
+
+  

@@ -7,7 +7,7 @@ class SportsConfig(AppConfig):
 
     
     def ready(self):
-        import sports.signals
+        # import sports.signals
         
         if "runserver" in sys.argv or "shell" in sys.argv:
             from . import scheduler

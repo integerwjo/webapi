@@ -70,9 +70,19 @@ class RegisterSerializer(serializers.ModelSerializer):
 # Player Serializers
 # ========================
 class PlayerStatsSerializer(serializers.ModelSerializer):
+    club_name = serializers.CharField(source='player.club.name')
+    goals = serializers.IntegerField(read_only=True)
+    photo_url = serializers.SerializerMethodField()
+
     class Meta:
         model = PlayerStats
-        fields = ['assists', 'yellow_cards', 'red_cards']
+        fields = ['id', 'player', 'club_name', 'goals', 'photo_url']
+
+    def get_photo_url(self, obj):
+        return getattr(obj.player.photo, 'url', None)
+
+
+
 
 
 class PlayerSerializer(serializers.ModelSerializer):
@@ -225,8 +235,6 @@ class MatchFixtureSerializer(serializers.ModelSerializer):
     class Meta:
         model = MatchFixture
         fields = ['id', 'team_a','team_b', 'team_a_id', 'team_b_id', 'date', 'venue']
-
-from rest_framework import serializers
 
 class TopFixtureSerializer(serializers.ModelSerializer):
     team_a_name = serializers.CharField(source="team_a.name", read_only=True)

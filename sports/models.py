@@ -169,12 +169,14 @@ class Player(models.Model):
     
 class PlayerStats(models.Model):
     player = models.OneToOneField(Player, on_delete=models.CASCADE, related_name='stats')
+    goals = models.PositiveIntegerField(default=0)   # ✅ add this field
     assists = models.PositiveIntegerField(default=0)
     yellow_cards = models.PositiveIntegerField(default=0)
     red_cards = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.player.name} Stats"
+
 
 
 class Goal(models.Model):
